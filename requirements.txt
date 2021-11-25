@@ -1,0 +1,4 @@
+pandas
+tqdm
+linkedin-api~=2.0.0a
+git+https://github.com/UoA-eResearch/nodebook.git
