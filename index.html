@@ -37,12 +37,19 @@
             font-weight: normal;
         }
 
-        #info {
+        #controls {
             position: absolute;
             right: 10px;
             bottom: 10px;
             background-color: white;
             padding: 20px;
+        }
+
+        .small {
+            text-align: center;
+            font-size: .7rem;
+            margin: 10px;
+            color: gray;
         }
     </style>
 </head>
@@ -50,10 +57,35 @@
 <body>
     <h1 id="title">LinkedIn workforce flows from KPMG, Deloitte, PwC and EY in NZ</h1>
     <div id="network"></div>
+    <div id="controls">
+        Hide edges with weight less than: <input id="limit" type="number" min=1 max=332 value="2" />
+        <div class="small"><a href="https://github.com/UoA-eResearch/linkedin">GitHub</a></div>
+    </div>
 
     <script>
-        $.getJSON("network.json", function (data) {
+
+        function filter() {
+            var limit = $("#limit").val()
+            var data = JSON.parse(JSON.stringify(window.data))
+            data.links = data.links.filter(e => e.val >= limit)
+            var linked_nodes = []
+            for (link of data.links) {
+                linked_nodes.push(link.source, link.target)
+            }
+            data.nodes = data.nodes.filter(n => linked_nodes.includes(n.name))
+            return data
+        }
+
+        $("#limit").change(function () {
+            var data = filter()
             console.log(data);
+            window.graph.graphData(data)
+        })
+
+        $.getJSON("network.json", function (data) {
+            window.data = data
+            console.log(data);
+            var data = filter();
             window.elem = document.getElementById("network")
             window.graph = ForceGraph3D()
                 (elem)
@@ -79,6 +111,9 @@
                         3000  // ms transition duration
                     );
                 })
+            const linkForce = graph
+                .d3Force('link')
+                .distance(200);
         })
     </script>
 </body>
