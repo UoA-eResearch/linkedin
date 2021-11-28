@@ -58,7 +58,8 @@
     <h1 id="title">LinkedIn workforce flows to and from KPMG, Deloitte, PwC and EY in NZ</h1>
     <div id="network"></div>
     <div id="controls">
-        Hide edges with weight less than: <input id="limit" type="number" min=1 max=332 value="2" />
+        Hide edges with weight less than: <input id="limit" type="number" min=1 max=332 value="2" /><br>
+        Hide self-loops: <input id="loop" type="checkbox"/>
         <div class="small"><a href="https://github.com/UoA-eResearch/linkedin">GitHub</a></div>
     </div>
 
@@ -68,6 +69,9 @@
             var limit = $("#limit").val()
             var data = JSON.parse(JSON.stringify(window.data))
             data.links = data.links.filter(e => e.val >= limit)
+            if ($("#loop").is(":checked")) {
+                data.links = data.links.filter(e => e.source != e.target)
+            }
             var linked_nodes = []
             for (link of data.links) {
                 linked_nodes.push(link.source, link.target)
@@ -76,7 +80,7 @@
             return data
         }
 
-        $("#limit").change(function () {
+        $("#limit,#loop").change(function () {
             var data = filter()
             console.log(data);
             window.graph.graphData(data)
